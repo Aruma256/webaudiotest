@@ -2,10 +2,6 @@ const BACKGROUD_FILLSTYLE = 'rgb(0, 0, 0)';
 const RAW_FREQ_FILLSTYLE_NORMAL = 'rgb(32, 32, 32)';
 const RAW_FREQ_FILLSTYLE_EMPHASIZED = 'rgb(255, 0, 0)';
 
-function getFreqBarLength(value) {
-    return (value + 140) * 3;
-}
-
 async function onButtonClick(){
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const audioCtx = new AudioContext();
@@ -37,6 +33,10 @@ async function onButtonClick(){
     document.body.appendChild(canvas);
     const canvasCtx = canvas.getContext('2d');
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+    function getFreqBarLength(value) {
+        return (value - analyserNode.minDecibels) / (analyserNode.maxDecibels - analyserNode.minDecibels) * canvas.width;
+    }
 
     function draw() {
         //Schedule next redraw
