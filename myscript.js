@@ -38,6 +38,14 @@ async function onButtonClick(){
         return (value - analyserNode.minDecibels) / (analyserNode.maxDecibels - analyserNode.minDecibels) * canvas.width;
     }
 
+    function drawFreqBar(idx, value, style) {
+        const length = getFreqBarLength(value);
+        const barWidth = canvas.height / bufferLength;
+        const posY = idx * barWidth;
+        canvasCtx.fillStyle = style;
+        canvasCtx.fillRect(canvas.width - length, posY, length, barWidth);
+    }
+
     function draw() {
         //Schedule next redraw
         requestAnimationFrame(draw);
@@ -50,24 +58,17 @@ async function onButtonClick(){
         canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
         //Draw spectrum
-        const barWidth = canvas.height / bufferLength;
         let max_i = 0;
         let maxValue = -Infinity;
         for (let i = 0; i < bufferLength; i++) {
-            const posY = i * barWidth;
-            const barLength = getFreqBarLength(dataArray[i]);
-            canvasCtx.fillStyle = RAW_FREQ_FILLSTYLE_NORMAL;
-            canvasCtx.fillRect(0, posY, barLength, barWidth);
+            drawFreqBar(i, dataArray[i], RAW_FREQ_FILLSTYLE_NORMAL);
             //Update maxValue
             if (maxValue < dataArray[i]) {
                 max_i = i;
                 maxValue = dataArray[i];
             }
         }
-
-        canvasCtx.fillStyle = RAW_FREQ_FILLSTYLE_EMPHASIZED;
-        canvasCtx.fillRect(0, max_i * barWidth, getFreqBarLength(dataArray[max_i]), barWidth);
-
+        drawFreqBar(max_i, dataArray[max_i], RAW_FREQ_FILLSTYLE_EMPHASIZED);
     };
     // REF https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getFloatFrequencyData
 
