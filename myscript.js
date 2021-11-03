@@ -52,11 +52,11 @@ async function onButtonClick(){
     const history = new Array(HISTORY_SIZE);
 
     function getPosYFromFreq(f) {
-        return f / screenFreqLimit * canvas.height;
+        return Math.ceil(canvas.height - (f / screenFreqLimit * canvas.height));
     }
 
     function getPosYFromIdx(idx) {
-        return idx * freqBarScaleY;
+        return Math.ceil(canvas.height - (idx * freqBarScaleY));
     }
 
     function getFreqBarLength(value) {
@@ -66,7 +66,7 @@ async function onButtonClick(){
     function drawFreqBar(idx, value, style) {
         const length = getFreqBarLength(value);
         canvasCtx.fillStyle = style;
-        canvasCtx.fillRect(canvas.width * (1 - FREQ_BAR_CENTER_SCALE) - length/2, getPosYFromIdx(idx), length, freqBarScaleY);
+        canvasCtx.fillRect(canvas.width * (1 - FREQ_BAR_CENTER_SCALE) - length/2, getPosYFromIdx(idx+1), length, freqBarScaleY);
     }
 
     function draw() {
@@ -96,18 +96,20 @@ async function onButtonClick(){
 
         //Draw target
         const targetPosY = getPosYFromFreq(TARGET_FREQ);
-        const targetPosYlow = getPosYFromFreq(TARGET_FREQ * (1 - TARGET_RANGE_SCALE_LOW));
         const targetPosYhigh = getPosYFromFreq(TARGET_FREQ * (1 + TARGET_RANGE_SCALE_HIGH));
-        let gradientLow = canvasCtx.createLinearGradient(0, targetPosYlow, 0, targetPosY);
-        gradientLow.addColorStop(0, BACKGROUD_STYLE);
-        gradientLow.addColorStop(1, TARGET_COLOR);
-        canvasCtx.fillStyle = gradientLow;
-        canvasCtx.fillRect(0, targetPosYlow, canvas.width, targetPosY);
-        let gradientHigh = canvasCtx.createLinearGradient(0, targetPosY, 0, targetPosYhigh);
-        gradientHigh.addColorStop(0, TARGET_COLOR);
-        gradientHigh.addColorStop(1, BACKGROUD_STYLE);
+        const targetPosYlow = getPosYFromFreq(TARGET_FREQ * (1 - TARGET_RANGE_SCALE_LOW));
+
+        let gradientHigh = canvasCtx.createLinearGradient(0, targetPosYhigh, 0, targetPosY);
+        gradientHigh.addColorStop(0, BACKGROUD_STYLE);
+        gradientHigh.addColorStop(1, TARGET_COLOR);
         canvasCtx.fillStyle = gradientHigh;
-        canvasCtx.fillRect(0, targetPosY, canvas.width, targetPosYhigh);
+        canvasCtx.fillRect(0, targetPosYhigh, canvas.width, targetPosY - targetPosYhigh);
+
+        let gradientLow = canvasCtx.createLinearGradient(0, targetPosY, 0, targetPosYlow);
+        gradientLow.addColorStop(0, TARGET_COLOR);
+        gradientLow.addColorStop(1, BACKGROUD_STYLE);
+        canvasCtx.fillStyle = gradientLow;
+        canvasCtx.fillRect(0, targetPosY, canvas.width, targetPosYlow - targetPosY);
 
         //Draw spectrum
         for (let i = 0; i < bufferLength; i++) {
