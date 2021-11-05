@@ -30,11 +30,14 @@ async function onButtonClick(){
     const sampleRate = audioCtx.sampleRate;
     console.log(`sample rate: ${sampleRate}`);
     console.log(`frequencyBinCount: ${analyserNode.frequencyBinCount}`);
-    let bufferLength = 0;
-    while (sampleRate/2 / analyserNode.frequencyBinCount * (bufferLength+1) <= FREQ_LIMIT && bufferLength+1 <= analyserNode.frequencyBinCount) {
-        bufferLength++;
+    let bufferLength = analyserNode.frequencyBinCount;
+    for (let i = 0; i < analyserNode.frequencyBinCount; i++) {
+        if (sampleRate/2 / analyserNode.frequencyBinCount * i > FREQ_LIMIT) {
+            bufferLength = i;
+            break;
+        }
     }
-    const screenFreqLimit = sampleRate/2 / analyserNode.frequencyBinCount * (bufferLength+1);
+    const screenFreqLimit = sampleRate/2 / analyserNode.frequencyBinCount * bufferLength;
     const dataArray = new Uint8Array(bufferLength);
 
     const canvas = document.createElement('canvas');
@@ -48,7 +51,7 @@ async function onButtonClick(){
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
     const historyScaleX = canvas.width * (1 - FREQ_BAR_CENTER_SCALE) / HISTORY_SIZE;
-    const freqBarScaleY = canvas.height / bufferLength;
+    const freqBarScaleY = canvas.height / (bufferLength - 1);
     const history = new Array(HISTORY_SIZE);
 
     function getPosYFromFreq(f) {
@@ -66,7 +69,7 @@ async function onButtonClick(){
     function drawFreqBar(idx, value, style) {
         const length = getFreqBarLength(value);
         canvasCtx.fillStyle = style;
-        canvasCtx.fillRect(canvas.width * (1 - FREQ_BAR_CENTER_SCALE) - length/2, getPosYFromIdx(idx+1), length, freqBarScaleY);
+        canvasCtx.fillRect(canvas.width * (1 - FREQ_BAR_CENTER_SCALE) - length/2, getPosYFromIdx(idx+0.5), length, freqBarScaleY);
     }
 
     function draw() {
