@@ -5,6 +5,7 @@ import numpy as np
 
 import wave_analyzer
 
+
 class TestWaveAnalyzer(unittest.TestCase):
 
     def test_compute_fft(self):
@@ -48,4 +49,3 @@ class TestWaveAnalyzer(unittest.TestCase):
             ),
             5.5
         )
-

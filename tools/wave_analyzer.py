@@ -5,19 +5,23 @@ from scipy import fft
 from scipy.io import wavfile
 from matplotlib import pyplot as plt
 
+
 PLOT_STYLE_DEFAULT = {}
 PLOT_STYLE = PLOT_STYLE_DEFAULT
+
 
 def compute_fft(wave: np.ndarray, sample_rate: int) -> tuple[np.ndarray, np.ndarray]:
     freq_axis = fft.rfftfreq(wave.size, d=1/sample_rate)
     freq_data = np.abs(fft.rfft(wave)) / (len(wave) / 2)
     return freq_axis, freq_data
 
+
 def get_peak_freq(freq_axis: np.ndarray, freq_data: np.ndarray) -> float:
     assert freq_axis.ndim == freq_data.ndim == 1
     assert freq_axis.shape == freq_data.shape
     idx = np.argmax(freq_data)
     return float(freq_axis[idx])
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -57,4 +61,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
