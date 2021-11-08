@@ -14,9 +14,9 @@ class TestWaveAnalyzer(unittest.TestCase):
         #
         with self.subTest(name="one"):
             wave = np.sin(2 * math.pi * t * 250)
-            freq_axis, freq_data = wave_analyzer.compute_fft(wave, 10000)
-            self.assertIn(250, freq_axis)
-            for freq, level in zip(freq_axis, freq_data):
+            freq_scale, freq_data = wave_analyzer.compute_fft(wave, 10000)
+            self.assertIn(250, freq_scale)
+            for freq, level in zip(freq_scale, freq_data):
                 if freq == 250:
                     self.assertAlmostEqual(level, 1, delta=DELTA)
                 else:
@@ -25,10 +25,10 @@ class TestWaveAnalyzer(unittest.TestCase):
         with self.subTest(name="two"):
             wave = 0.5 * np.sin(2 * math.pi * t * 100)
             wave += 1 * np.sin(2 * math.pi * t * 300)
-            freq_axis, freq_data = wave_analyzer.compute_fft(wave, 10000)
-            self.assertIn(100, freq_axis)
-            self.assertIn(300, freq_axis)
-            for freq, level in zip(freq_axis, freq_data):
+            freq_scale, freq_data = wave_analyzer.compute_fft(wave, 10000)
+            self.assertIn(100, freq_scale)
+            self.assertIn(300, freq_scale)
+            for freq, level in zip(freq_scale, freq_data):
                 if freq == 100:
                     self.assertAlmostEqual(level, 0.5, delta=DELTA)
                 elif freq == 300:

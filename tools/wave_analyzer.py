@@ -11,16 +11,16 @@ PLOT_STYLE = PLOT_STYLE_DEFAULT
 
 
 def compute_fft(wave: np.ndarray, sample_rate: int) -> tuple[np.ndarray, np.ndarray]:
-    freq_axis = fft.rfftfreq(wave.size, d=1/sample_rate)
+    freq_scale = fft.rfftfreq(wave.size, d=1/sample_rate)
     freq_data = np.abs(fft.rfft(wave)) / (len(wave) / 2)
-    return freq_axis, freq_data
+    return freq_scale, freq_data
 
 
-def get_peak_freq(freq_axis: np.ndarray, freq_data: np.ndarray) -> float:
-    assert freq_axis.ndim == freq_data.ndim == 1
-    assert freq_axis.shape == freq_data.shape
+def get_peak_freq(freq_scale: np.ndarray, freq_data: np.ndarray) -> float:
+    assert freq_scale.ndim == freq_data.ndim == 1
+    assert freq_scale.shape == freq_data.shape
     idx = np.argmax(freq_data)
-    return float(freq_axis[idx])
+    return float(freq_scale[idx])
 
 
 def main() -> None:
@@ -44,14 +44,14 @@ def main() -> None:
         plt.plot(wave, **PLOT_STYLE)
         plt.show()
         return
-    freq_axis, freq_data = compute_fft(wave, sample_rate)
-    peak_freq = get_peak_freq(freq_axis, freq_data)
+    freq_scale, freq_data = compute_fft(wave, sample_rate)
+    peak_freq = get_peak_freq(freq_scale, freq_data)
     if args.mode == 'get_peak_freq':
         print(peak_freq)
     if args.mode == 'show_freq':
-        freq_limit_idx = np.searchsorted(freq_axis, args.freq_limit,
+        freq_limit_idx = np.searchsorted(freq_scale, args.freq_limit,
                                          side='right')
-        plt.plot(freq_axis[:freq_limit_idx], freq_data[:freq_limit_idx],
+        plt.plot(freq_scale[:freq_limit_idx], freq_data[:freq_limit_idx],
                  **PLOT_STYLE)
         plt.annotate(f'{peak_freq} Hz', xy=(peak_freq, np.max(freq_data)))
         plt.xlabel('frequency [Hz]')
