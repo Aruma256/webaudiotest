@@ -30,6 +30,7 @@ def main() -> None:
     parser.add_argument('--frame_start', default=0, type=int)
     parser.add_argument('--cut_1sec', action='store_true')
     parser.add_argument('--freq_limit', default=1000, type=int)
+    parser.add_argument('--save_name', default='', type=str)
     args = parser.parse_args()
     #
     sample_rate, wave = wavfile.read(args.path)
@@ -57,6 +58,10 @@ def main() -> None:
         plt.xlabel('frequency [Hz]')
         plt.ylabel('level')
         plt.show()
+    if args.save_name:
+        np.savez_compressed(f'data/{args.save_name}.npz',
+                            scale=freq_scale,
+                            data=freq_data)
 
 
 if __name__ == '__main__':
