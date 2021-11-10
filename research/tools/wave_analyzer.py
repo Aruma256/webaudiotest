@@ -10,6 +10,16 @@ PLOT_STYLE_DEFAULT = {}
 PLOT_STYLE = PLOT_STYLE_DEFAULT
 
 
+def cut_wave(wave: np.ndarray, sample_rate: int,
+             frame_start: int, cut_1sec: bool) -> np.ndarray:
+    if frame_start:
+        wave = wave[frame_start:]
+    if cut_1sec:
+        assert sample_rate <= len(wave)
+        wave = wave[:sample_rate]
+    return wave
+
+
 def compute_fft(wave: np.ndarray, sample_rate: int) -> tuple[np.ndarray, np.ndarray]:
     freq_scale = fft.rfftfreq(wave.size, d=1/sample_rate)
     freq_data = np.abs(fft.rfft(wave)) / (len(wave) / 2)
@@ -37,9 +47,7 @@ def main() -> None:
     assert wave.ndim == 1
     assert wave.dtype == np.int16
     #
-    left = args.frame_start
-    right = left + sample_rate if args.cut_1sec else -1
-    wave = wave[left:right]
+    wave = cut_wave(wave, sample_rate, args.frame_start, args.cut_1sec)
     wave = wave / 2**15
     if args.mode == 'show_wave':
         plt.plot(wave, **PLOT_STYLE)

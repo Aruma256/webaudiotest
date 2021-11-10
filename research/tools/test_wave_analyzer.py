@@ -6,6 +6,18 @@ from pytest import approx
 import wave_analyzer
 
 
+def test_cut_wave():
+    arr = np.arange(50)
+    res = wave_analyzer.cut_wave(arr.copy(), 10, 0, False)
+    np.testing.assert_array_equal(arr, res)
+    res = wave_analyzer.cut_wave(arr.copy(), 10, 0, True)
+    np.testing.assert_array_equal(arr[:10], res)
+    res = wave_analyzer.cut_wave(arr.copy(), 10, 5, False)
+    np.testing.assert_array_equal(arr[5:], res)
+    res = wave_analyzer.cut_wave(arr.copy(), 10, 5, True)
+    np.testing.assert_array_equal(arr[5:15], res)
+
+
 def test_compute_fft():
     DELTA = 0.04
     t = np.linspace(start=0, stop=1, num=10000, dtype=float)
