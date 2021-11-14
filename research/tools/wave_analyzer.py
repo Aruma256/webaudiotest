@@ -67,7 +67,7 @@ def main() -> None:
         plt.ylabel('level')
         plt.show()
     if args.save_name:
-        np.savez_compressed(f'data/{args.save_name}.npz',
+        np.savez_compressed(f'research/data/{args.save_name}.npz',
                             scale=freq_scale,
                             level=freq_level)
 
