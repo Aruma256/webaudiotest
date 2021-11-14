@@ -22,14 +22,14 @@ def cut_wave(wave: np.ndarray, sample_rate: int,
 
 def compute_fft(wave: np.ndarray, sample_rate: int) -> tuple[np.ndarray, np.ndarray]:
     freq_scale = fft.rfftfreq(wave.size, d=1/sample_rate)
-    freq_data = np.abs(fft.rfft(wave)) / (len(wave) / 2)
-    return freq_scale, freq_data
+    freq_level = np.abs(fft.rfft(wave)) / (len(wave) / 2)
+    return freq_scale, freq_level
 
 
-def get_peak_freq(freq_scale: np.ndarray, freq_data: np.ndarray) -> float:
-    assert freq_scale.ndim == freq_data.ndim == 1
-    assert freq_scale.shape == freq_data.shape
-    idx = np.argmax(freq_data)
+def get_peak_freq(freq_scale: np.ndarray, freq_level: np.ndarray) -> float:
+    assert freq_scale.ndim == freq_level.ndim == 1
+    assert freq_scale.shape == freq_level.shape
+    idx = np.argmax(freq_level)
     return float(freq_scale[idx])
 
 
@@ -53,23 +53,23 @@ def main() -> None:
         plt.plot(wave, **PLOT_STYLE)
         plt.show()
         return
-    freq_scale, freq_data = compute_fft(wave, sample_rate)
-    peak_freq = get_peak_freq(freq_scale, freq_data)
+    freq_scale, freq_level = compute_fft(wave, sample_rate)
+    peak_freq = get_peak_freq(freq_scale, freq_level)
     if args.mode == 'get_peak_freq':
         print(peak_freq)
     if args.mode == 'show_freq':
         freq_limit_idx = np.searchsorted(freq_scale, args.freq_limit,
                                          side='right')
-        plt.plot(freq_scale[:freq_limit_idx], freq_data[:freq_limit_idx],
+        plt.plot(freq_scale[:freq_limit_idx], freq_level[:freq_limit_idx],
                  **PLOT_STYLE)
-        plt.annotate(f'{peak_freq} Hz', xy=(peak_freq, np.max(freq_data)))
+        plt.annotate(f'{peak_freq} Hz', xy=(peak_freq, np.max(freq_level)))
         plt.xlabel('frequency [Hz]')
         plt.ylabel('level')
         plt.show()
     if args.save_name:
         np.savez_compressed(f'data/{args.save_name}.npz',
                             scale=freq_scale,
-                            data=freq_data)
+                            level=freq_level)
 
 
 if __name__ == '__main__':
