@@ -1,9 +1,13 @@
 import math
+import sys
+from unittest.mock import Mock
 
 import numpy as np
 import pytest
 
-import wave_analyzer
+sys.modules['matplotlib'] = Mock()
+
+import wave_analyzer  # noqa: E402 (ignore "import not at top of file")
 
 
 def test_cut_wave():
