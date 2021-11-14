@@ -1,0 +1,6 @@
+python research/tools/wave_analyzer.py research/sample/susie.wav show_freq --frame_start 30000 --cut_1sec --save_name susie
+python research/tools/wave_analyzer.py research/sample/noelle.wav show_freq --frame_start 30000 --cut_1sec --save_name noelle
+python research/tools/wave_analyzer.py research/sample/berdly.wav show_freq --frame_start 10000 --cut_1sec --save_name berdly
+
+python research/tools/wave_analyzer.py research/sample/ralsei.wav show_freq --frame_start 20000 --cut_1sec --save_name ralsei
+python research/tools/wave_analyzer.py research/sample/queen.wav show_freq --frame_start 20000 --cut_1sec --save_name queen
