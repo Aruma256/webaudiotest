@@ -3,12 +3,14 @@ const HISTORY_SIZE = 1024;
 const FREQ_BAR_CENTER_SCALE = 0.1;
 const FREQ_LIMIT = 1024;
 
-const TARGET_FREQ = 187;
-const TARGET_COLOR = 'rgb(234, 121, 200)';
-const TARGET_RANGE_SCALE_LOW = 0.2;
-const TARGET_RANGE_SCALE_HIGH = 0.3;
+const TARGET_RANGE_SCALE = 0.2;
+
+for (let name in CHARACTERS) {
+    CHARACTERS[name]["style"] = `rgb(${CHARACTERS[name]["color"].join(',')})`
+}
 
 const BACKGROUD_STYLE = 'rgb(0, 0, 0)';
+const TRANSPARENT_STYLE = 'rgba(0, 0, 0, 0)';
 const RAW_FREQ_FILLSTYLE = 'rgb(200, 200, 200)';
 
 async function onButtonClick(){
@@ -98,21 +100,29 @@ async function onButtonClick(){
         history.push(max_i);
 
         //Draw target
-        const targetPosY = getPosYFromFreq(TARGET_FREQ);
-        const targetPosYhigh = getPosYFromFreq(TARGET_FREQ * (1 + TARGET_RANGE_SCALE_HIGH));
-        const targetPosYlow = getPosYFromFreq(TARGET_FREQ * (1 - TARGET_RANGE_SCALE_LOW));
+        for (let name in CHARACTERS) {
+            const targetPosYL = getPosYFromFreq(CHARACTERS[name]["freq_range"][0]);
+            const targetPosYH = getPosYFromFreq(CHARACTERS[name]["freq_range"][1]);
+            const targetPosYLL = getPosYFromFreq(CHARACTERS[name]["freq_range"][0] * (1 - TARGET_RANGE_SCALE));
+            const targetPosYHH = getPosYFromFreq(CHARACTERS[name]["freq_range"][1] * (1 + TARGET_RANGE_SCALE));
 
-        let gradientHigh = canvasCtx.createLinearGradient(0, targetPosYhigh, 0, targetPosY);
-        gradientHigh.addColorStop(0, BACKGROUD_STYLE);
-        gradientHigh.addColorStop(1, TARGET_COLOR);
-        canvasCtx.fillStyle = gradientHigh;
-        canvasCtx.fillRect(0, targetPosYhigh, canvas.width, targetPosY - targetPosYhigh);
+            // low
+            let gradientLow = canvasCtx.createLinearGradient(0, targetPosYL, 0, targetPosYLL);
+            gradientLow.addColorStop(0, CHARACTERS[name]["style"]);
+            gradientLow.addColorStop(1, TRANSPARENT_STYLE);
+            canvasCtx.fillStyle = gradientLow;
+            canvasCtx.fillRect(0, targetPosYL, canvas.width, targetPosYLL - targetPosYL);
 
-        let gradientLow = canvasCtx.createLinearGradient(0, targetPosY, 0, targetPosYlow);
-        gradientLow.addColorStop(0, TARGET_COLOR);
-        gradientLow.addColorStop(1, BACKGROUD_STYLE);
-        canvasCtx.fillStyle = gradientLow;
-        canvasCtx.fillRect(0, targetPosY, canvas.width, targetPosYlow - targetPosY);
+            // range
+            canvasCtx.fillRect(0, targetPosYH, canvas.width, targetPosYL - targetPosYH);
+
+            // high
+            let gradientHigh = canvasCtx.createLinearGradient(0, targetPosYHH, 0, targetPosYH);
+            gradientHigh.addColorStop(0, TRANSPARENT_STYLE);
+            gradientHigh.addColorStop(1, CHARACTERS[name]["style"]);
+            canvasCtx.fillStyle = gradientHigh;
+            canvasCtx.fillRect(0, targetPosYHH, canvas.width, targetPosYH - targetPosYHH);
+        }
 
         //Draw spectrum
         for (let i = 0; i < bufferLength; i++) {
