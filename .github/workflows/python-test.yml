@@ -5,7 +5,7 @@ name: Python application
 
 on:
   push:
-    paths: research/tools/**
+    paths: research/tools/**.py
   pull_request:
     branches: [ main ]
 
