@@ -42,13 +42,9 @@ async function onButtonClick(){
     const screenFreqLimit = sampleRate/2 / analyserNode.frequencyBinCount * bufferLength;
     const dataArray = new Uint8Array(bufferLength);
 
-    const canvas = document.createElement('canvas');
-    canvas.style.position = 'absolute';
-    canvas.style.top = 0;
-    canvas.style.left = 0;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    document.body.appendChild(canvas);
+    const canvas = document.getElementById('canvas')
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
     const canvasCtx = canvas.getContext('2d');
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 

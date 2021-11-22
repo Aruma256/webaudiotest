@@ -4,10 +4,16 @@
     <head>
         <meta charset="utf-8">
         <title>Sample</title>
+        <link rel="stylesheet" href="./styles.css">
         <script src="./research/characters-conf.js"></script>
         <script src="./app/app.js"></script>
     </head>
     <body>
-        <input type="button" value="start" onclick="onButtonClick();"/>
+        <div id="wrapper">
+            <div id="button-container">
+                <input type="button" value="start" onclick="onButtonClick();"/>
+            </div>
+            <canvas id="canvas"></canvas>
+        </div>
     </body>
 </html>
