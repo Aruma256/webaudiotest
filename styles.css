@@ -1,24 +1,14 @@
-html {
-    height: 100%;
-}
-
 body {
     background-color: #000000;
     margin: 0;
-    height: 100%;
 }
 
 #wrapper {
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
 #button-container {
     display: flex;
     flex-wrap: wrap;
-}
-
-#canvas {
-    flex-grow: 1;
 }
