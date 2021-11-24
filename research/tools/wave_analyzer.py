@@ -1,6 +1,7 @@
 import argparse
 
 import numpy as np
+import numpy.typing as npt
 from scipy import fft
 from scipy.io import wavfile
 from matplotlib import pyplot as plt
@@ -10,8 +11,8 @@ PLOT_STYLE_DEFAULT = {}
 PLOT_STYLE = PLOT_STYLE_DEFAULT
 
 
-def cut_wave(wave: np.ndarray, sample_rate: int,
-             frame_start: int, cut_1sec: bool) -> np.ndarray:
+def cut_wave(wave: npt.NDArray, sample_rate: int,
+             frame_start: int, cut_1sec: bool) -> npt.NDArray:
     if frame_start:
         wave = wave[frame_start:]
     if cut_1sec:
@@ -20,13 +21,14 @@ def cut_wave(wave: np.ndarray, sample_rate: int,
     return wave
 
 
-def compute_fft(wave: np.ndarray, sample_rate: int) -> tuple[np.ndarray, np.ndarray]:
+def compute_fft(wave: npt.NDArray,
+                sample_rate: int) -> tuple[npt.NDArray, npt.NDArray]:
     freq_scale = fft.rfftfreq(wave.size, d=1/sample_rate)
     freq_level = np.abs(fft.rfft(wave)) / (len(wave) / 2)
     return freq_scale, freq_level
 
 
-def get_peak_freq(freq_scale: np.ndarray, freq_level: np.ndarray) -> float:
+def get_peak_freq(freq_scale: npt.NDArray, freq_level: npt.NDArray) -> float:
     assert freq_scale.ndim == freq_level.ndim == 1
     assert freq_scale.shape == freq_level.shape
     idx = np.argmax(freq_level)
@@ -36,7 +38,9 @@ def get_peak_freq(freq_scale: np.ndarray, freq_level: np.ndarray) -> float:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('path', type=str)
-    parser.add_argument('mode', choices=('show_wave', 'show_freq', 'get_peak_freq'), type=str)
+    parser.add_argument('mode',
+                        choices=('show_wave', 'show_freq', 'get_peak_freq'),
+                        type=str)
     parser.add_argument('--frame_start', default=0, type=int)
     parser.add_argument('--cut_1sec', action='store_true')
     parser.add_argument('--freq_limit', default=1000, type=int)
