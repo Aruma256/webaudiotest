@@ -1,4 +1,9 @@
 const HISTORY_SIZE = 1024;
+const PHASE = {
+    WAITING: "WAITING",
+    CONNECTING: "CONNECTING",
+    RUNNING: "RUNNING",
+};
 
 for (let name in CHARACTERS) {
     CHARACTERS[name]["style"] = `rgb(${CHARACTERS[name]["color"].join(',')})`
@@ -11,20 +16,17 @@ const PARAMS = {
     FREQ_BIN_COUNT: null,
 };
 
-let appRenderer = null;
-
-window.onload = function() {
-    appRenderer = new AppRenderer(document.getElementById('canvas'), PARAMS);
-    appRenderer.reset();
-};
-
-
-async function onButtonClick(){
+async function getAnalyserNode() {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const audioCtx = new AudioContext();
     // REF https://developer.mozilla.org/ja/docs/Web/API/AudioContext
 
-    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    let stream = null;
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    } catch(err) {
+        return null;
+    }
     // REF https://developer.mozilla.org/ja/docs/Web/API/MediaDevices/getUserMedia
 
     const source = audioCtx.createMediaStreamSource(stream);
@@ -40,53 +42,91 @@ async function onButtonClick(){
     PARAMS["MAX_FREQ"] = sampleRate / 2;
     console.log(`frequencyBinCount: ${analyserNode.frequencyBinCount}`);
     PARAMS["FREQ_BIN_COUNT"] = analyserNode.frequencyBinCount;
-    let bufferLength = analyserNode.frequencyBinCount;
-    for (let i = 0; i < analyserNode.frequencyBinCount; i++) {
-        if (sampleRate/2 / analyserNode.frequencyBinCount * i > PARAMS["FREQ_LIMIT"]) {
-            bufferLength = i;
-            break;
-        }
+    return analyserNode;
+}
+
+class MyApp {
+
+    constructor(appRenderer) {
+        this.appRenderer = appRenderer;
+        this.phase = PHASE.WAITING;
+        this.history = new Array(HISTORY_SIZE);
+        this.analyserNode = null;
+        this.dataArray = null;
     }
-    const dataArray = new Uint8Array(bufferLength);
 
-    const historyScaleX = canvas.width * (1 - FREQ_BAR_CENTER_SCALE) / HISTORY_SIZE;
-    const history = new Array(HISTORY_SIZE);
-
-    function draw() {
-        //Schedule next redraw
-        requestAnimationFrame(draw);
-
-        //Get spectrum data
-        analyserNode.getByteFrequencyData(dataArray);
-
-        //Calc max value
-        let max_i = 0;
-        let maxValue = -Infinity;
-        for (let i = 0; i < bufferLength; i++) {
-            if (maxValue < dataArray[i]) {
-                max_i = i;
-                maxValue = dataArray[i];
+    async connectAudioInput() {
+        this.analyserNode = await getAnalyserNode();
+        if (this.analyserNode === null) {
+            this.phase = PHASE.WAITING;
+            return;
+        }
+        for (let i = 0; ; i++ ) {
+            if (i / PARAMS.FREQ_BIN_COUNT * PARAMS.MAX_FREQ > PARAMS.FREQ_LIMIT) {
+                this.dataArray = new Uint8Array(i);
+                break;
             }
         }
-        console.log(sampleRate/2 / analyserNode.frequencyBinCount * max_i);
+        this.phase = PHASE.RUNNING;
+    }
 
-        history.shift() //TODO optimization optimization **optimization**
-        history.push(max_i);
+    onCanvasClick() {
+        console.log(this.phase);
+        if (this.phase === PHASE.WAITING) {
+            this.phase = PHASE.CONNECTING;
+            this.connectAudioInput();
+        }
+    }
 
-        appRenderer.reset(window.innerWidth, window.innerHeight - document.getElementById('button-container').clientHeight);
+    drawLoop() {
+        //Schedule next redraw
+        requestAnimationFrame(() => this.drawLoop());
 
-        //Draw target
-        appRenderer.drawTarget(CHARACTERS);
+        if (this.phase === PHASE.WAITING) {
 
-        //Draw spectrum
-        appRenderer.drawSpectrum(dataArray);
+        } else if (this.phase === PHASE.CONNECTING) {
 
-        //Draw history
-        appRenderer.drawHistory(history);
+        } else if (this.phase === PHASE.RUNNING) {
+            //Get spectrum data
+            this.analyserNode.getByteFrequencyData(this.dataArray);
 
+            //Calc max value
+            let max_i = 0;
+            let maxValue = -Infinity;
+            for (let i = 0; i < this.dataArray.length; i++) {
+                if (maxValue < this.dataArray[i]) {
+                    max_i = i;
+                    maxValue = this.dataArray[i];
+                }
+            }
+
+            this.history.shift()
+            this.history.push(max_i);
+
+            this.appRenderer.reset(window.innerWidth, window.innerHeight - document.getElementById('button-container').clientHeight);
+
+            //Draw target
+            this.appRenderer.drawTarget(CHARACTERS);
+
+            //Draw spectrum
+            this.appRenderer.drawSpectrum(this.dataArray);
+
+            //Draw history
+            this.appRenderer.drawHistory(this.history);
+        }
     };
     // REF https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/getFloatFrequencyData
 
-    draw();
+    start() {
+        this.drawLoop();
+    }
 
 }
+
+window.onload = function() {
+    const canvas = document.getElementById('canvas');
+    const appRenderer = new AppRenderer(canvas, PARAMS);
+    const myApp = new MyApp(appRenderer);
+    canvas.addEventListener('click', () => myApp.onCanvasClick(), false);
+    myApp.start();
+};
