@@ -5,8 +5,9 @@ const PHASE = {
     RUNNING: "RUNNING",
 };
 
-for (let name in CHARACTERS) {
-    CHARACTERS[name]["style"] = `rgb(${CHARACTERS[name]["color"].join(',')})`
+for (let [name, spec] of Object.entries(CHARACTERS)) {
+    spec["hex_color"] = spec["color"].map((v) => `0${v.toString(16)}`.slice(-2)).join('');
+    spec["style"] = `rgb(${spec["color"].join(',')})`;
 }
 
 const PARAMS = {
@@ -129,4 +130,29 @@ window.onload = function() {
     const myApp = new MyApp(appRenderer);
     canvas.addEventListener('click', () => myApp.onCanvasClick(), false);
     myApp.start();
+    const container = document.getElementById('button-container');
+    for (let [name, spec] of Object.entries(CHARACTERS)) {
+        if (!spec["visible"]) {
+            continue;
+        }
+        const btn = document.createElement('button');
+        btn.innerHTML = name;
+        btn.className = 'button-character';
+        btn.style.borderColor = `#${spec['hex_color']}`;
+        btn.onclick = function() {
+            if (myApp.phase === PHASE.RUNNING) {
+                spec.enabled = !spec.enabled;
+                if (spec.enabled) {
+                    btn.classList.add("button-character-enabled");
+                } else {
+                    btn.classList.remove("button-character-enabled");
+                }
+            }
+        };
+        if (spec.enabled) {
+            btn.classList.add("button-character-enabled");
+        }
+        container.appendChild(btn);
+    }
+
 };

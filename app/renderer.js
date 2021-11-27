@@ -1,7 +1,7 @@
 const FREQ_BAR_CENTER_SCALE = 0.9;
 const FREQ_BAR_MAX_LENGTH_SCALE = 0.1;
 
-const TARGET_RANGE_SCALE = 0.2;
+const TARGET_RANGE_SCALE = 0.3;
 
 const TRANSPARENT_STYLE = 'rgba(0, 0, 0, 0)';
 const RAW_FREQ_FILLSTYLE = 'rgb(200, 200, 200)';
@@ -36,7 +36,11 @@ class AppRenderer {
     }
 
     drawTarget(characters) {
-        for (let [name, spec] of Object.entries(characters)) {
+        for (let name in characters) {
+            const spec = characters[name];
+            if (!spec.enabled) {
+                continue;
+            }
             const targetPosYL = this.getPosYFromFreq(spec["freq_range"][0]);
             const targetPosYH = this.getPosYFromFreq(spec["freq_range"][1]);
             const targetPosYLL = this.getPosYFromFreq(spec["freq_range"][0] * (1 - TARGET_RANGE_SCALE));

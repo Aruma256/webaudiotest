@@ -12,3 +12,16 @@ body {
     display: flex;
     flex-wrap: wrap;
 }
+
+.button-character {
+    background: #000000;
+    border-width: thick;
+    border-style: solid;
+    color: #ffffff;
+    font-size: 20px;
+    margin: 4px;
+}
+
+.button-character-enabled {
+    color: yellow;
+}
