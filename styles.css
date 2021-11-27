@@ -15,10 +15,10 @@ body {
 
 .button-character {
     background: #000000;
-    border-width: thick;
+    border-width: 1vh;
     border-style: solid;
     color: #ffffff;
-    font-size: 20px;
+    font-size: 3vh;
     margin: 4px;
 }
 
